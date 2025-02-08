@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dr. 3BLD</title>
+    <title>3BLD Stat Tools</title>
     <style>
         body {
             background-color: #1a1a1a;
@@ -110,15 +110,14 @@
         }
         .range-thumb {
             position: absolute;
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             background: #888;
             border: 2px solid #666;
             border-radius: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
             pointer-events: none;
-            box-shadow: 0 0 0 4px #2a2a2a;
         }
         .result {
             text-align: center;
@@ -143,12 +142,17 @@
             height: 240px;
         }
         .chart-container {
-            height: 180px;
+            height: calc(100% - 4rem);
             display: flex;
             align-items: flex-end;
             gap: 2px;
-            position: relative;
+            position: absolute;
+            top: 2rem;
+            left: 3rem;
+            right: 0;
+            bottom: 2rem;
             z-index: 2;
+            padding-left: 0rem;
         }
         .bar {
             background: #666;
@@ -156,6 +160,7 @@
             transition: height 0.3s;
             border-radius: 4px 4px 0 0;
             position: relative;
+            margin: 0 1px;
         }
         .grid-lines {
             position: absolute;
@@ -273,7 +278,7 @@
                     </div>
                 </div>
                 <div class="setting-line">
-                    <span>Float 3</span>
+                    <span>Float 3-style</span>
                     <div class="range-wrapper">
                         <div class="range-container">
                             <div class="range-selected"></div>
@@ -284,7 +289,7 @@
                     </div>
                 </div>
                 <div class="setting-line">
-                    <span>Alg Length</span>
+                    <span>Algs</span>
                     <div class="range-wrapper">
                         <div class="range-container">
                             <div class="range-selected"></div>
@@ -321,7 +326,7 @@
                     </div>
                 </div>
                 <div class="setting-line">
-                    <span>Float 3</span>
+                    <span>Float 3-style</span>
                     <div class="range-wrapper">
                         <div class="range-container">
                             <div class="range-selected"></div>
@@ -332,7 +337,7 @@
                     </div>
                 </div>
                 <div class="setting-line">
-                    <span>Alg Length</span>
+                    <span>Algs</span>
                     <div class="range-wrapper">
                         <div class="range-container">
                             <div class="range-selected"></div>
@@ -345,24 +350,24 @@
             </div>
             
             <p style="text-align: center; color: #888; font-size: 0.8rem;">Todo: custom JS filter & scrambler</p>
-            <div class="result">Probability = <span id="probability-value">100.00%</span></div>
+            <div class="result">Probability: <span id="probability-value">100.00%</span></div>
         </div>
 
         <div id="distribution" class="tab-content">
-            <input type="text" class="distribution-input" placeholder="Todo: custom JS expression & fix chart bug" />
+            <input type="text" class="distribution-input" placeholder="Todo: custom JS expression" />
             <div class="chart-wrapper">
                 <div class="y-axis-label">Prob.</div>
                 <div class="grid-lines edge-grid-lines"></div>
                 <div class="chart-container" id="edge-chart"></div>
                 <div class="x-axis edge-x-axis"></div>
-                <div class="x-axis-label">Edge Code Length</div>
+                <div class="x-axis-label edge-x-axis-label">Edge Algs</div>
             </div>
             <div class="chart-wrapper">
                 <div class="y-axis-label">Prob.</div>
                 <div class="grid-lines corner-grid-lines"></div>
                 <div class="chart-container" id="corner-chart"></div>
                 <div class="x-axis corner-x-axis"></div>
-                <div class="x-axis-label">Corner Code Length</div>
+                <div class="x-axis-label corner-x-axis-label">Corner Algs</div>
             </div>
         </div>
     </div>
@@ -607,26 +612,37 @@
         }
 
         function updateChart(input) {
-            const edgeLengthCounts = ee_ls.concat(oe_ls).reduce((acc, item) => {
+            const edgeAlgCounts = ee_ls.concat(oe_ls).reduce((acc, item) => {
                 acc[item.doubleAlgLength] = (acc[item.doubleAlgLength] || 0) + item.count;
                 return acc;
             }, {});
-            const edgeCodeLengthFreq = [];
-            for (let i = 0; i <= 17; i++) {
-                edgeCodeLengthFreq.push((edgeLengthCounts[i] || 0) / 980995276800);
-            }
-            
-            const cornerLengthCounts = ec_ls.concat(oc_ls).reduce((acc, item) => {
-                acc[item.doubleAlgLength] = (acc[item.doubleAlgLength] || 0) + item.count;
-                return acc;
-            }, {});
-            const cornerCodeLengthFreq = [];
-            for (let i = 0; i <= 11; i++) {
-                cornerCodeLengthFreq.push((cornerLengthCounts[i] || 0) / 88179840);
-            }
 
-            const edgeValues = edgeCodeLengthFreq;
-            const cornerValues = cornerCodeLengthFreq;
+            const edgeValues = [];
+            let edgeSumXP = 0, edgeSumX2P = 0;
+            for (let i = 0; i <= 17; i++) {
+                const value = (edgeAlgCounts[i] || 0) / 980995276800;
+                edgeValues.push(value);
+                edgeSumXP += value * i;
+                edgeSumX2P += value * i * i;
+            }
+            const edgeExp = edgeSumXP / 2, edgeStd = Math.sqrt(edgeSumX2P / 4 - edgeExp * edgeExp);
+            
+            const cornerAlgCounts = ec_ls.concat(oc_ls).reduce((acc, item) => {
+                acc[item.doubleAlgLength] = (acc[item.doubleAlgLength] || 0) + item.count;
+                return acc;
+            }, {});
+            const cornerValues = [];
+            let cornerSumXP = 0, cornerSumX2P = 0;
+            for (let i = 0; i <= 11; i++) {
+                const value = (cornerAlgCounts[i] || 0) / 88179840;
+                cornerValues.push(value);
+                cornerSumXP += value * i;
+                cornerSumX2P += value * i * i;
+            }
+            const cornerExp = cornerSumXP / 2, cornerStd = Math.sqrt(cornerSumX2P / 4 - cornerExp * cornerExp);
+
+            document.querySelector('.edge-x-axis-label').textContent = `Edge Algs (Mean=${edgeExp.toFixed(3)}, Std=${edgeStd.toFixed(3)})`;
+            document.querySelector('.corner-x-axis-label').textContent = `Corner Algs (Mean=${cornerExp.toFixed(3)}, Std=${cornerStd.toFixed(3)})`;
             
             const maxEdgeValue = Math.max(...edgeValues);
             const maxCornerValue = Math.max(...cornerValues);
@@ -676,11 +692,10 @@
                 const bar = document.createElement('div');
                 bar.className = 'bar';
                 bar.style.height = `${(value / maxEdgeValue) * 100}%`;
-                bar.style.bottom = 'calc(-100% / 4)'; // Move each bar one grid down
                 edgeChartContainer.appendChild(bar);
                 
                 const label = document.createElement('div');
-                label.textContent = index/2;
+                label.textContent = index / 2;
                 edgeXAxis.appendChild(label);
             });
 
@@ -688,11 +703,10 @@
                 const bar = document.createElement('div');
                 bar.className = 'bar';
                 bar.style.height = `${(value / maxCornerValue) * 100}%`;
-                bar.style.bottom = 'calc(-100% / 4)'; // Move each bar one grid down
                 cornerChartContainer.appendChild(bar);
                 
                 const label = document.createElement('div');
-                label.textContent = index/2;
+                label.textContent = index / 2;
                 cornerXAxis.appendChild(label);
             });
         }
