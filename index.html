@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dr. 3BLD</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        h1 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 2rem;
+        }
+        .tab-container {
+            background-color: #2a2a2a;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .tab-buttons {
+            display: flex;
+            background: #333;
+        }
+        .tab-button {
+            padding: 1rem 2rem;
+            border: none;
+            background: none;
+            color: #888;
+            cursor: pointer;
+            flex: 1;
+            transition: all 0.3s;
+        }
+        .tab-button.active {
+            background: #2a2a2a;
+            color: white;
+        }
+        .tab-content {
+            padding: 1.5rem;
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .setting-group {
+            background-color: #333;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        .setting-group h3 {
+            margin-top: 0;
+            color: #aaa;
+        }
+        .setting-line {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1rem 0;
+            gap: 1rem;
+        }
+        .setting-value {
+            min-width: 4rem;
+            text-align: right;
+        }
+        select, .range-container {
+            width: 150px;
+        }
+        select {
+            border-radius: 6px;
+            background: #444;
+            color: white;
+            border: none;
+            padding: 0.3rem;
+        }
+        .range-container {
+            position: relative;
+            height: 6px;
+            background: #444;
+            border-radius: 3px;
+        }
+        .range-slider {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            -webkit-appearance: none;
+            opacity: 0;
+        }
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            pointer-events: auto;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            border: 2px solid #666;
+            box-shadow: 0 0 0 4px #2a2a2a;
+            opacity: 1;
+        }
+        .range-selected {
+            position: absolute;
+            height: 100%;
+            background: #666;
+            border-radius: 3px;
+        }
+        .range-thumb {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: #888;
+            border: 2px solid #666;
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            box-shadow: 0 0 0 4px #2a2a2a;
+        }
+        .result {
+            text-align: center;
+            font-size: 1.2rem;
+            background: #333;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+        .distribution-input {
+            width: 100%;
+            padding: 0.5rem;
+            background: #333;
+            border: 1px solid #444;
+            color: white;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+        .chart-wrapper {
+            position: relative;
+            padding: 1rem 1.5rem;
+            height: 240px;
+        }
+        .chart-container {
+            height: 180px;
+            display: flex;
+            align-items: flex-end;
+            gap: 2px;
+            position: relative;
+            z-index: 2;
+        }
+        .bar {
+            background: #666;
+            flex: 1;
+            transition: height 0.3s;
+            border-radius: 4px 4px 0 0;
+            position: relative;
+        }
+        .grid-lines {
+            position: absolute;
+            top: 2rem;
+            left: 3rem;
+            right: 0;
+            bottom: 2rem;
+            z-index: 1;
+        }
+        .grid-line {
+            position: absolute;
+            left: 0;
+            right: 0;
+            border-bottom: 1px dashed #444;
+        }
+        .grid-label {
+            position: absolute;
+            left: -3rem;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 0.8rem;
+        }
+        .x-axis {
+            position: absolute;
+            bottom: 0;
+            left: 3rem;
+            right: 0;
+            height: 2rem;
+            display: flex;
+            justify-content: space-around;
+            color: #888;
+            font-size: 0.8rem;
+        }
+        .y-axis-label {
+            position: absolute;
+            left: 0.5rem;
+            top: 50%;
+            transform: rotate(-90deg) translateX(-50%);
+            transform-origin: left top;
+            color: #888;
+            font-size: 0.8rem;
+        }
+        .x-axis-label {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #888;
+            font-size: 0.8rem;
+        }
+        .checkbox-container {
+            display: flex;
+            gap: 1rem;
+            background-color: #333;
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #aaa;
+        }
+        .checkbox-label input {
+            accent-color: #2a2a2a;
+        }
+    </style>
+</head>
+<body>
+    <h1>3BLD Stat Tools</h1>
+    
+    <div class="tab-container">
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="switchTab('probability')">Probability</button>
+            <button class="tab-button" onclick="switchTab('distribution')">Distribution</button>
+        </div>
+
+        <div id="probability" class="tab-content active">
+            <div class="setting-line">
+                <span>Parity</span>
+                <div class="checkbox-container">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="parity-even" onchange="updateProbability()" checked>
+                        Even
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="parity-odd" onchange="updateProbability()" checked>
+                        Odd
+                    </label>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <h3>Edge</h3>
+                <div class="setting-line">
+                    <span>Solved</span>
+                    <div class="range-wrapper">
+                        <div class="range-container">
+                            <div class="range-selected"></div>
+                            <input type="range" min="0" max="11" value="0" class="range-slider" id="edge-solved-min">
+                            <input type="range" min="0" max="11" value="11" class="range-slider" id="edge-solved-max">
+                        </div>
+                        <span class="setting-value" id="edge-solved-value">0-11</span>
+                    </div>
+                </div>
+                <div class="setting-line">
+                    <span>Flips</span>
+                    <div class="range-wrapper">
+                        <div class="range-container">
+                            <div class="range-selected"></div>
+                            <input type="range" min="0" max="11" value="0" class="range-slider" id="edge-flips-min">
+                            <input type="range" min="0" max="11" value="11" class="range-slider" id="edge-flips-max">
+                        </div>
+                        <span class="setting-value" id="edge-flips-value">0-11</span>
+                    </div>
+                </div>
+                <div class="setting-line">
+                    <span>Cycles</span>
+                    <div class="range-wrapper">
+                        <div class="range-container">
+                            <div class="range-selected"></div>
+                            <input type="range" min="0" max="5" value="0" class="range-slider" id="edge-cycles-min">
+                            <input type="range" min="0" max="5" value="5" class="range-slider" id="edge-cycles-max">
+                        </div>
+                        <span class="setting-value" id="edge-cycles-value">0-5</span>
+                    </div>
+                </div>
+                <div class="setting-line">
+                    <span>Code Length</span>
+                    <div class="range-wrapper">
+                        <div class="range-container">
+                            <div class="range-selected"></div>
+                            <input type="range" min="0" max="22" value="0" class="range-slider" id="edge-length-min">
+                            <input type="range" min="0" max="22" value="22" class="range-slider" id="edge-length-max">
+                        </div>
+                        <span class="setting-value" id="edge-length-value">0-22</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setting-group">
+                <h3>Corner</h3>
+                <div class="setting-line">
+                    <span>Solved</span>
+                    <div class="range-wrapper">
+                        <div class="range-container">
+                            <div class="range-selected"></div>
+                            <input type="range" min="0" max="7" value="0" class="range-slider" id="corner-solved-min">
+                            <input type="range" min="0" max="7" value="7" class="range-slider" id="corner-solved-max">
+                        </div>
+                        <span class="setting-value" id="corner-solved-value">0-11</span>
+                    </div>
+                </div>
+                <div class="setting-line">
+                    <span>Twists</span>
+                    <div class="range-wrapper">
+                        <div class="range-container">
+                            <div class="range-selected"></div>
+                            <input type="range" min="0" max="7" value="0" class="range-slider" id="corner-flips-min">
+                            <input type="range" min="0" max="7" value="7" class="range-slider" id="corner-flips-max">
+                        </div>
+                        <span class="setting-value" id="corner-flips-value">0-7</span>
+                    </div>
+                </div>
+                <div class="setting-line">
+                    <span>Cycles</span>
+                    <div class="range-wrapper">
+                        <div class="range-container">
+                            <div class="range-selected"></div>
+                            <input type="range" min="0" max="3" value="0" class="range-slider" id="corner-cycles-min">
+                            <input type="range" min="0" max="3" value="3" class="range-slider" id="corner-cycles-max">
+                        </div>
+                        <span class="setting-value" id="corner-cycles-value">0-3</span>
+                    </div>
+                </div>
+                <div class="setting-line">
+                    <span>Code Length</span>
+                    <div class="range-wrapper">
+                        <div class="range-container">
+                            <div class="range-selected"></div>
+                            <input type="range" min="0" max="14" value="0" class="range-slider" id="corner-length-min">
+                            <input type="range" min="0" max="14" value="14" class="range-slider" id="corner-length-max">
+                        </div>
+                        <span class="setting-value" id="corner-length-value">0-22</span>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="text-align: center; color: #888; font-size: 0.8rem;">Todo: custom JS filter</p>
+            <div class="result">Probability = <span id="probability-value">100.00%</span></div>
+        </div>
+
+        <div id="distribution" class="tab-content">
+            <input type="text" class="distribution-input" placeholder="Todo: custom JS expression here" />
+            <div class="chart-wrapper">
+                <div class="y-axis-label">Prob.</div>
+                <div class="grid-lines edge-grid-lines"></div>
+                <div class="chart-container" id="edge-chart"></div>
+                <div class="x-axis edge-x-axis"></div>
+                <div class="x-axis-label">Edge Code Length</div>
+            </div>
+            <div class="chart-wrapper">
+                <div class="y-axis-label">Prob.</div>
+                <div class="grid-lines corner-grid-lines"></div>
+                <div class="chart-container" id="corner-chart"></div>
+                <div class="x-axis corner-x-axis"></div>
+                <div class="x-axis-label">Corner Code Length</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize thumbs for a range container
+        function initializeRangeContainer(container) {
+            // Remove any existing thumbs
+            const existingThumbs = container.querySelectorAll('.range-thumb');
+            existingThumbs.forEach(thumb => thumb.remove());
+            
+            // Create new thumbs
+            const thumb1 = document.createElement('div');
+            const thumb2 = document.createElement('div');
+            thumb1.className = 'range-thumb';
+            thumb2.className = 'range-thumb';
+            container.appendChild(thumb1);
+            container.appendChild(thumb2);
+        }
+
+        let ee_ls = [], ec_ls = [], oe_ls = [], oc_ls = [];
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Selected code to run at the beginning
+            const factorials = [];
+            for (let i = 0; i <= 11; i++) {
+                factorials[i] = i === 0 ? 1 : factorials[i - 1] * i;
+            }
+
+            const fileNames = ['ee.txt', 'ec.txt', 'oe.txt', 'oc.txt'];
+            const fetchData = fileName => fetch(`assets/${fileName}`)
+                .then(response => response.text())
+                .then(text => {
+                    const lines = text.trim().split('\n');
+                    const data = lines.map(line => {
+                        const numbers = line.split(',').map(Number);
+                        const grouped = [];
+                        for (let i = 0; i < numbers.length; i += 2) {
+                            grouped.push({ perm: numbers[i], ori: numbers[i + 1] });
+                        }
+                        const _Perm = fileName[1] === 'e' ? 12 : 8;
+                        const _Ori = fileName[1] === 'e' ? 2 : 3;
+                        const CodeLength = grouped.slice(1).reduce((sum, cycle) => sum + (cycle.perm > 1 ? cycle.perm + 1 : (cycle.ori > 0 ? 2 : 0)), 0) + grouped[0].perm - 1;
+
+                        let Count = factorials[_Perm - 1];
+                        grouped.slice(1).forEach(cycle => {
+                            Count /= cycle.perm;
+                        });
+                        Count *= Math.pow(_Ori, (_Perm - grouped.length));
+                        grouped.slice(1).reduce((acc, cycle) => {
+                            const count = acc.get(cycle.perm<<2|cycle.ori) || 0;
+                            acc.set(cycle.perm<<2|cycle.ori, count + 1);
+                            return acc;
+                        }, new Map()).forEach((count, cycle) => {
+                            Count /= factorials[count];
+                        });
+
+                        return {
+                            group: grouped,
+                            solved: grouped.slice(1).filter(cycle => cycle.perm == 1 && cycle.ori == 0).length,
+                            flips: grouped.slice(1).filter(cycle => cycle.perm == 1 && cycle.ori > 0).length,
+                            cycles: grouped.slice(1).filter(cycle => cycle.perm > 1).length,
+                            codeLength: CodeLength,
+                            parity: CodeLength & 1,
+                            count: Count
+                        };
+                    });
+                    if (fileName === 'ee.txt') ee_ls = data;
+                    if (fileName === 'ec.txt') ec_ls = data;
+                    if (fileName === 'oe.txt') oe_ls = data;
+                    if (fileName === 'oc.txt') oc_ls = data;
+                })
+                .catch(error => console.error('Error reading file:', fileName, error));
+
+            await Promise.all(fileNames.map(fetchData));
+
+            // Initialize all range containers
+            document.querySelectorAll('.range-container').forEach(container => {
+                initializeRangeContainer(container);
+            });
+
+            // Initialize the chart with sample data
+            const input = document.querySelector('.distribution-input');
+            updateChart(input.value);
+
+            // Add event listeners for sliders
+            const sliderGroups = ['edge-solved', 'edge-flips', 'edge-cycles', 'edge-length', 'corner-solved', 'corner-flips', 'corner-cycles', 'corner-length'];
+            sliderGroups.forEach(baseId => {
+                const minSlider = document.getElementById(baseId + '-min');
+                const maxSlider = document.getElementById(baseId + '-max');
+
+                if (minSlider && maxSlider) {
+                    minSlider.addEventListener('input', function() {
+                        if (parseInt(maxSlider.value) < parseInt(this.value)) {
+                            maxSlider.value = this.value;
+                        }
+                        updateRangeSlider(baseId);
+                    });
+
+                    maxSlider.addEventListener('input', function() {
+                        if (parseInt(minSlider.value) > parseInt(this.value)) {
+                            minSlider.value = this.value;
+                        }
+                        updateRangeSlider(baseId);
+                    });
+
+                    updateRangeSlider(baseId);
+                }
+            });
+
+            // Add event listener for distribution input
+            input.addEventListener('change', function() {
+                updateChart(this.value);
+            });
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+            document.querySelector(`button[onclick="switchTab('${tabId}')"]`).classList.add('active');
+        }
+
+        function calculateProbability() {
+            // Get values from checkboxes and range sliders
+            const parityEven = document.getElementById('parity-even').checked;
+            const parityOdd = document.getElementById('parity-odd').checked;
+
+            const edgeSolvedMin = document.getElementById('edge-solved-min').value;
+            const edgeSolvedMax = document.getElementById('edge-solved-max').value;
+            const edgeFlipsMin = document.getElementById('edge-flips-min').value;
+            const edgeFlipsMax = document.getElementById('edge-flips-max').value;
+            const edgeCyclesMin = document.getElementById('edge-cycles-min').value;
+            const edgeCyclesMax = document.getElementById('edge-cycles-max').value;
+            const edgeLengthMin = document.getElementById('edge-length-min').value;
+            const edgeLengthMax = document.getElementById('edge-length-max').value;
+
+            const cornerSolvedMin = document.getElementById('corner-solved-min').value;
+            const cornerSolvedMax = document.getElementById('corner-solved-max').value;
+            const cornerFlipsMin = document.getElementById('corner-flips-min').value;
+            const cornerFlipsMax = document.getElementById('corner-flips-max').value;
+            const cornerCyclesMin = document.getElementById('corner-cycles-min').value;
+            const cornerCyclesMax = document.getElementById('corner-cycles-max').value;
+            const cornerLengthMin = document.getElementById('corner-length-min').value;
+            const cornerLengthMax = document.getElementById('corner-length-max').value;
+
+            parityConstraint = (parity) => parityEven && parity == 0 || parityOdd && parity == 1;
+            edgeConstraint = (x) => x.solved >= edgeSolvedMin && x.solved <= edgeSolvedMax &&
+                x.flips >= edgeFlipsMin && x.flips <= edgeFlipsMax &&
+                x.cycles >= edgeCyclesMin && x.cycles <= edgeCyclesMax &&
+                x.codeLength >= edgeLengthMin && x.codeLength <= edgeLengthMax;
+            cornerConstraint = (x) => x.solved >= cornerSolvedMin && x.solved <= cornerSolvedMax &&
+                x.flips >= cornerFlipsMin && x.flips <= cornerFlipsMax &&
+                x.cycles >= cornerCyclesMin && x.cycles <= cornerCyclesMax &&
+                x.codeLength >= cornerLengthMin && x.codeLength <= cornerLengthMax;
+
+            let evenEdgeCount = 0, oddEdgeCount = 0, evenCornerCount = 0, oddCornerCount = 0;
+            let evenEdgeCDF = [], oddEdgeCDF = [], evenCornerCDF = [], oddCornerCDF = [];
+
+            ee_ls.forEach(x => {
+                evenEdgeCDF.push((evenEdgeCount += parityConstraint(0) && edgeConstraint(x) ? x.count : 0));
+            });
+            let evenEdgeProbability = evenEdgeCDF[evenEdgeCDF.length - 1] / 980995276800;
+
+            oe_ls.forEach(x => {
+                oddEdgeCDF.push((oddEdgeCount += parityConstraint(1) && edgeConstraint(x) ? x.count : 0));
+            });
+            let oddEdgeProbability = oddEdgeCDF[oddEdgeCDF.length - 1] / 980995276800;
+
+            ec_ls.forEach(x => {
+                evenCornerCDF.push((evenCornerCount += parityConstraint(0) && cornerConstraint(x) ? x.count : 0));
+            });
+            let evenCornerProbability = evenCornerCDF[evenCornerCDF.length - 1] / 88179840;
+
+            oc_ls.forEach(x => {
+                oddCornerCDF.push((oddCornerCount += parityConstraint(1) && cornerConstraint(x) ? x.count : 0));
+            });
+            let oddCornerProbability = oddCornerCDF[oddCornerCDF.length - 1] / 88179840;
+            let probability = (evenEdgeProbability * evenCornerProbability + oddEdgeProbability * oddCornerProbability) * 2;
+
+            document.getElementById('probability-value').textContent = (100*probability).toFixed(2) + '%';
+        }
+
+        function updateRangeSlider(baseId) {
+            const minSlider = document.getElementById(baseId + '-min');
+            const maxSlider = document.getElementById(baseId + '-max');
+            const container = minSlider.parentNode;
+            const range = container.querySelector('.range-selected');
+            const valueDisplay = document.getElementById(baseId + '-value');
+            const thumbs = container.querySelectorAll('.range-thumb');
+            
+            const percent1 = (minSlider.value - minSlider.min) / (minSlider.max - minSlider.min) * 100;
+            const percent2 = (maxSlider.value - minSlider.min) / (minSlider.max - minSlider.min) * 100;
+            
+            range.style.left = percent1 + '%';
+            range.style.width = (percent2 - percent1) + '%';
+            
+            // Ensure we have thumbs before trying to position them
+            if (thumbs.length === 2) {
+                thumbs[0].style.left = percent1 + '%';
+                thumbs[1].style.left = percent2 + '%';
+            }
+            
+            valueDisplay.textContent = `${minSlider.value}-${maxSlider.value}`;
+            calculateProbability();
+        }
+
+        function updateProbability() {
+            calculateProbability();
+        }
+
+        function updateChart(input) {
+            const edgeLengthCounts = ee_ls.concat(oe_ls).reduce((acc, item) => {
+                acc[item.codeLength] = (acc[item.codeLength] || 0) + item.count;
+                return acc;
+            }, {});
+            const edgeCodeLengthFreq = [];
+            for (let i = 0; i <= 22; i++) {
+                edgeCodeLengthFreq.push((edgeLengthCounts[i] || 0) / 980995276800);
+            }
+            
+            const cornerLengthCounts = ec_ls.concat(oc_ls).reduce((acc, item) => {
+                acc[item.codeLength] = (acc[item.codeLength] || 0) + item.count;
+                return acc;
+            }, {});
+            const cornerCodeLengthFreq = [];
+            for (let i = 0; i <= 14; i++) {
+                cornerCodeLengthFreq.push((cornerLengthCounts[i] || 0) / 88179840);
+            }
+
+            const edgeValues = edgeCodeLengthFreq;
+            const cornerValues = cornerCodeLengthFreq;
+            
+            const maxEdgeValue = Math.max(...edgeValues);
+            const maxCornerValue = Math.max(...cornerValues);
+            const edgeChartContainer = document.getElementById('edge-chart');
+            const cornerChartContainer = document.getElementById('corner-chart');
+            const edgeGridLines = document.querySelector('.edge-grid-lines');
+            const cornerGridLines = document.querySelector('.corner-grid-lines');
+            const edgeXAxis = document.querySelector('.edge-x-axis');
+            const cornerXAxis = document.querySelector('.corner-x-axis');
+            
+            // Clear previous content
+            edgeChartContainer.innerHTML = '';
+            cornerChartContainer.innerHTML = '';
+            edgeGridLines.innerHTML = '';
+            cornerGridLines.innerHTML = '';
+            edgeXAxis.innerHTML = '';
+            cornerXAxis.innerHTML = '';
+            
+            // Create grid lines and labels
+            const gridCount = 5;
+            for (let i = 0; i <= gridCount; i++) {
+                const edgeGridLine = document.createElement('div');
+                edgeGridLine.className = 'grid-line';
+                edgeGridLine.style.bottom = (i / gridCount * 100) + '%';
+                
+                const edgeLabel = document.createElement('div');
+                edgeLabel.className = 'grid-label';
+                edgeLabel.textContent = ((maxEdgeValue * (gridCount - i) / gridCount)).toFixed(2);
+                
+                edgeGridLine.appendChild(edgeLabel);
+                edgeGridLines.appendChild(edgeGridLine);
+
+                const cornerGridLine = document.createElement('div');
+                cornerGridLine.className = 'grid-line';
+                cornerGridLine.style.bottom = (i / gridCount * 100) + '%';
+                
+                const cornerLabel = document.createElement('div');
+                cornerLabel.className = 'grid-label';
+                cornerLabel.textContent = ((maxCornerValue * (gridCount - i) / gridCount)).toFixed(2);
+                
+                cornerGridLine.appendChild(cornerLabel);
+                cornerGridLines.appendChild(cornerGridLine);
+            }
+            
+            // Create bars and x-axis labels
+            edgeValues.forEach((value, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = `${(value / maxEdgeValue) * 100}%`;
+                edgeChartContainer.appendChild(bar);
+                
+                const label = document.createElement('div');
+                label.textContent = index + 1;
+                edgeXAxis.appendChild(label);
+            });
+
+            cornerValues.forEach((value, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = `${(value / maxCornerValue) * 100}%`;
+                cornerChartContainer.appendChild(bar);
+                
+                const label = document.createElement('div');
+                label.textContent = index + 1;
+                cornerXAxis.appendChild(label);
+            });
+        }
+    </script>
+</body>
+</html>
