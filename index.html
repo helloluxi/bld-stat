@@ -428,7 +428,7 @@
                         let twistLength = 0;
                         let twists = grouped.slice(1).filter(cycle => cycle.perm == 1 && cycle.ori > 0).map(cycle => cycle.ori);
                         if (_Ori == 2){
-                            twistLength += Math.ceil(twists.length / 2);
+                            twistLength += Math.ceil(twists.length / 4);
                         }
                         else{
                             for (let i = 0; i < twists.length - 2; i++) {
