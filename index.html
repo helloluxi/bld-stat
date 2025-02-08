@@ -251,17 +251,6 @@
             <div class="setting-group">
                 <h3>Edge</h3>
                 <div class="setting-line">
-                    <span>Solved</span>
-                    <div class="range-wrapper">
-                        <div class="range-container">
-                            <div class="range-selected"></div>
-                            <input type="range" min="0" max="11" value="0" class="range-slider" id="edge-solved-min">
-                            <input type="range" min="0" max="11" value="11" class="range-slider" id="edge-solved-max">
-                        </div>
-                        <span class="setting-value" id="edge-solved-value">0-11</span>
-                    </div>
-                </div>
-                <div class="setting-line">
                     <span>Flips</span>
                     <div class="range-wrapper">
                         <div class="range-container">
@@ -284,31 +273,31 @@
                     </div>
                 </div>
                 <div class="setting-line">
-                    <span>Code Length</span>
+                    <span>Float 3</span>
                     <div class="range-wrapper">
                         <div class="range-container">
                             <div class="range-selected"></div>
-                            <input type="range" min="0" max="22" value="0" class="range-slider" id="edge-length-min">
-                            <input type="range" min="0" max="22" value="22" class="range-slider" id="edge-length-max">
+                            <input type="range" min="0" max="3" value="0" class="range-slider" id="edge-float3-min">
+                            <input type="range" min="0" max="3" value="3" class="range-slider" id="edge-float3-max">
                         </div>
-                        <span class="setting-value" id="edge-length-value">0-22</span>
+                        <span class="setting-value" id="edge-float3-value">0-3</span>
+                    </div>
+                </div>
+                <div class="setting-line">
+                    <span>Alg Length</span>
+                    <div class="range-wrapper">
+                        <div class="range-container">
+                            <div class="range-selected"></div>
+                            <input type="range" min="0" max="8.5" value="0"   step="0.5" class="range-slider" id="edge-length-min">
+                            <input type="range" min="0" max="8.5" value="8.5" step="0.5" class="range-slider" id="edge-length-max">
+                        </div>
+                        <span class="setting-value" id="edge-length-value">0-8.5</span>
                     </div>
                 </div>
             </div>
 
             <div class="setting-group">
                 <h3>Corner</h3>
-                <div class="setting-line">
-                    <span>Solved</span>
-                    <div class="range-wrapper">
-                        <div class="range-container">
-                            <div class="range-selected"></div>
-                            <input type="range" min="0" max="7" value="0" class="range-slider" id="corner-solved-min">
-                            <input type="range" min="0" max="7" value="7" class="range-slider" id="corner-solved-max">
-                        </div>
-                        <span class="setting-value" id="corner-solved-value">0-11</span>
-                    </div>
-                </div>
                 <div class="setting-line">
                     <span>Twists</span>
                     <div class="range-wrapper">
@@ -332,24 +321,35 @@
                     </div>
                 </div>
                 <div class="setting-line">
-                    <span>Code Length</span>
+                    <span>Float 3</span>
                     <div class="range-wrapper">
                         <div class="range-container">
                             <div class="range-selected"></div>
-                            <input type="range" min="0" max="14" value="0" class="range-slider" id="corner-length-min">
-                            <input type="range" min="0" max="14" value="14" class="range-slider" id="corner-length-max">
+                            <input type="range" min="0" max="2" value="0" class="range-slider" id="corner-float3-min">
+                            <input type="range" min="0" max="2" value="2" class="range-slider" id="corner-float3-max">
                         </div>
-                        <span class="setting-value" id="corner-length-value">0-22</span>
+                        <span class="setting-value" id="corner-float3-value">0-2</span>
+                    </div>
+                </div>
+                <div class="setting-line">
+                    <span>Alg Length</span>
+                    <div class="range-wrapper">
+                        <div class="range-container">
+                            <div class="range-selected"></div>
+                            <input type="range" min="0" max="5.5" value="0"   step="0.5" class="range-slider" id="corner-length-min">
+                            <input type="range" min="0" max="5.5" value="5.5" step="0.5" class="range-slider" id="corner-length-max">
+                        </div>
+                        <span class="setting-value" id="corner-length-value">0-5.5</span>
                     </div>
                 </div>
             </div>
             
-            <p style="text-align: center; color: #888; font-size: 0.8rem;">Todo: custom JS filter</p>
+            <p style="text-align: center; color: #888; font-size: 0.8rem;">Todo: custom JS filter & scrambler</p>
             <div class="result">Probability = <span id="probability-value">100.00%</span></div>
         </div>
 
         <div id="distribution" class="tab-content">
-            <input type="text" class="distribution-input" placeholder="Todo: custom JS expression here" />
+            <input type="text" class="distribution-input" placeholder="Todo: custom JS expression & fix chart bug" />
             <div class="chart-wrapper">
                 <div class="y-axis-label">Prob.</div>
                 <div class="grid-lines edge-grid-lines"></div>
@@ -404,7 +404,6 @@
                         }
                         const _Perm = fileName[1] === 'e' ? 12 : 8;
                         const _Ori = fileName[1] === 'e' ? 2 : 3;
-                        const CodeLength = grouped.slice(1).reduce((sum, cycle) => sum + (cycle.perm > 1 ? cycle.perm + 1 : (cycle.ori > 0 ? 2 : 0)), 0) + grouped[0].perm - 1;
 
                         let Count = factorials[_Perm - 1];
                         grouped.slice(1).forEach(cycle => {
@@ -419,13 +418,41 @@
                             Count /= factorials[count];
                         });
 
+                        let float3 = grouped.slice(1).filter(cycle => cycle.perm == 3 && cycle.ori == 0).length;
+                        let baseLength = grouped.slice(1).reduce((sum, cycle) => sum + (cycle.perm > 1 ? cycle.perm + 1 : 0), 0) + grouped[0].perm - 1;
+                        let twistLength = 0;
+                        let twists = grouped.slice(1).filter(cycle => cycle.perm == 1 && cycle.ori > 0).map(cycle => cycle.ori);
+                        if (_Ori == 2){
+                            twistLength += Math.ceil(twists.length / 2);
+                        }
+                        else{
+                            for (let i = 0; i < twists.length - 2; i++) {
+                                if (twists[i] == twists[i + 1] && twists[i] == twists[i + 2]) {
+                                    twists.splice(i, 3);
+                                    twistLength += 1;
+                                    i -= 1;
+                                }
+                            }
+                            for (let i = 0; i < twists.length - 1; i++) {
+                                if (twists[i] != twists[i + 1]) {
+                                    twists.splice(i, 2);
+                                    twistLength += 1;
+                                    i -= 1;
+                                }
+                            }
+                            if (twists.length > 0) {
+                                twistLength += 1;
+                            }
+                        }
+
                         return {
                             group: grouped,
                             solved: grouped.slice(1).filter(cycle => cycle.perm == 1 && cycle.ori == 0).length,
                             flips: grouped.slice(1).filter(cycle => cycle.perm == 1 && cycle.ori > 0).length,
                             cycles: grouped.slice(1).filter(cycle => cycle.perm > 1).length,
-                            codeLength: CodeLength,
-                            parity: CodeLength & 1,
+                            float3: float3,
+                            doubleAlgLength: baseLength + twistLength * 2 - float3 * 2,
+                            parity: fileName[0] === 'e' ? 0 : 1,
                             count: Count
                         };
                     });
@@ -448,7 +475,7 @@
             updateChart(input.value);
 
             // Add event listeners for sliders
-            const sliderGroups = ['edge-solved', 'edge-flips', 'edge-cycles', 'edge-length', 'corner-solved', 'corner-flips', 'corner-cycles', 'corner-length'];
+            const sliderGroups = ['edge-flips', 'edge-cycles', 'edge-float3', 'edge-length', 'corner-flips', 'corner-cycles', 'corner-float3', 'corner-length'];
             sliderGroups.forEach(baseId => {
                 const minSlider = document.getElementById(baseId + '-min');
                 const maxSlider = document.getElementById(baseId + '-max');
@@ -494,33 +521,35 @@
             const parityEven = document.getElementById('parity-even').checked;
             const parityOdd = document.getElementById('parity-odd').checked;
 
-            const edgeSolvedMin = document.getElementById('edge-solved-min').value;
-            const edgeSolvedMax = document.getElementById('edge-solved-max').value;
             const edgeFlipsMin = document.getElementById('edge-flips-min').value;
             const edgeFlipsMax = document.getElementById('edge-flips-max').value;
             const edgeCyclesMin = document.getElementById('edge-cycles-min').value;
             const edgeCyclesMax = document.getElementById('edge-cycles-max').value;
+            const edgeFloat3Min = document.getElementById('edge-float3-min').value;
+            const edgeFloat3Max = document.getElementById('edge-float3-max').value;
             const edgeLengthMin = document.getElementById('edge-length-min').value;
             const edgeLengthMax = document.getElementById('edge-length-max').value;
 
-            const cornerSolvedMin = document.getElementById('corner-solved-min').value;
-            const cornerSolvedMax = document.getElementById('corner-solved-max').value;
             const cornerFlipsMin = document.getElementById('corner-flips-min').value;
             const cornerFlipsMax = document.getElementById('corner-flips-max').value;
             const cornerCyclesMin = document.getElementById('corner-cycles-min').value;
             const cornerCyclesMax = document.getElementById('corner-cycles-max').value;
+            const cornerFloat3Min = document.getElementById('corner-float3-min').value;
+            const cornerFloat3Max = document.getElementById('corner-float3-max').value;
             const cornerLengthMin = document.getElementById('corner-length-min').value;
             const cornerLengthMax = document.getElementById('corner-length-max').value;
 
             parityConstraint = (parity) => parityEven && parity == 0 || parityOdd && parity == 1;
-            edgeConstraint = (x) => x.solved >= edgeSolvedMin && x.solved <= edgeSolvedMax &&
+            edgeConstraint = (x) =>
                 x.flips >= edgeFlipsMin && x.flips <= edgeFlipsMax &&
                 x.cycles >= edgeCyclesMin && x.cycles <= edgeCyclesMax &&
-                x.codeLength >= edgeLengthMin && x.codeLength <= edgeLengthMax;
-            cornerConstraint = (x) => x.solved >= cornerSolvedMin && x.solved <= cornerSolvedMax &&
+                x.float3 >= edgeFloat3Min && x.float3 <= edgeFloat3Max &&
+                x.doubleAlgLength >= edgeLengthMin * 2 - 0.1 && x.doubleAlgLength <= edgeLengthMax * 2 + 0.1;
+            cornerConstraint = (x) =>
                 x.flips >= cornerFlipsMin && x.flips <= cornerFlipsMax &&
                 x.cycles >= cornerCyclesMin && x.cycles <= cornerCyclesMax &&
-                x.codeLength >= cornerLengthMin && x.codeLength <= cornerLengthMax;
+                x.float3 >= cornerFloat3Min && x.float3 <= cornerFloat3Max &&
+                x.doubleAlgLength >= cornerLengthMin * 2 - 0.1 && x.doubleAlgLength <= cornerLengthMax * 2 + 0.1;
 
             let evenEdgeCount = 0, oddEdgeCount = 0, evenCornerCount = 0, oddCornerCount = 0;
             let evenEdgeCDF = [], oddEdgeCDF = [], evenCornerCDF = [], oddCornerCDF = [];
@@ -579,20 +608,20 @@
 
         function updateChart(input) {
             const edgeLengthCounts = ee_ls.concat(oe_ls).reduce((acc, item) => {
-                acc[item.codeLength] = (acc[item.codeLength] || 0) + item.count;
+                acc[item.doubleAlgLength] = (acc[item.doubleAlgLength] || 0) + item.count;
                 return acc;
             }, {});
             const edgeCodeLengthFreq = [];
-            for (let i = 0; i <= 22; i++) {
+            for (let i = 0; i <= 17; i++) {
                 edgeCodeLengthFreq.push((edgeLengthCounts[i] || 0) / 980995276800);
             }
             
             const cornerLengthCounts = ec_ls.concat(oc_ls).reduce((acc, item) => {
-                acc[item.codeLength] = (acc[item.codeLength] || 0) + item.count;
+                acc[item.doubleAlgLength] = (acc[item.doubleAlgLength] || 0) + item.count;
                 return acc;
             }, {});
             const cornerCodeLengthFreq = [];
-            for (let i = 0; i <= 14; i++) {
+            for (let i = 0; i <= 11; i++) {
                 cornerCodeLengthFreq.push((cornerLengthCounts[i] || 0) / 88179840);
             }
 
@@ -625,7 +654,7 @@
                 
                 const edgeLabel = document.createElement('div');
                 edgeLabel.className = 'grid-label';
-                edgeLabel.textContent = ((maxEdgeValue * (gridCount - i) / gridCount)).toFixed(2);
+                edgeLabel.textContent = ((maxEdgeValue * i / gridCount)).toFixed(2);
                 
                 edgeGridLine.appendChild(edgeLabel);
                 edgeGridLines.appendChild(edgeGridLine);
@@ -636,7 +665,7 @@
                 
                 const cornerLabel = document.createElement('div');
                 cornerLabel.className = 'grid-label';
-                cornerLabel.textContent = ((maxCornerValue * (gridCount - i) / gridCount)).toFixed(2);
+                cornerLabel.textContent = ((maxCornerValue * i / gridCount)).toFixed(2);
                 
                 cornerGridLine.appendChild(cornerLabel);
                 cornerGridLines.appendChild(cornerGridLine);
@@ -647,10 +676,11 @@
                 const bar = document.createElement('div');
                 bar.className = 'bar';
                 bar.style.height = `${(value / maxEdgeValue) * 100}%`;
+                bar.style.bottom = 'calc(-100% / 4)'; // Move each bar one grid down
                 edgeChartContainer.appendChild(bar);
                 
                 const label = document.createElement('div');
-                label.textContent = index + 1;
+                label.textContent = index/2;
                 edgeXAxis.appendChild(label);
             });
 
@@ -658,10 +688,11 @@
                 const bar = document.createElement('div');
                 bar.className = 'bar';
                 bar.style.height = `${(value / maxCornerValue) * 100}%`;
+                bar.style.bottom = 'calc(-100% / 4)'; // Move each bar one grid down
                 cornerChartContainer.appendChild(bar);
                 
                 const label = document.createElement('div');
-                label.textContent = index + 1;
+                label.textContent = index/2;
                 cornerXAxis.appendChild(label);
             });
         }
