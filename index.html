@@ -193,6 +193,10 @@
             color: #888;
             font-size: 0.8rem;
         }
+        .x-axis div {
+            flex: 1;
+            text-align: center;
+        }
         .y-axis-label {
             position: absolute;
             left: 0.5rem;
@@ -388,7 +392,7 @@
         </div>
 
         <div id="distribution" class="tab-content">
-            <input type="text" class="distribution-input" placeholder="Custom JS expression. Todo: documentation. Default: x => x.doubleAlgLength / 2" />
+            <input type="text" class="distribution-input" placeholder="Custom JS expression. Todo: documentation. Default: x.doubleAlgLength / 2" />
             <div id="error-message" class="error-message"></div>
             <div class="chart-wrapper">
                 <div class="y-axis-label">Prob.</div>
@@ -776,9 +780,11 @@
                     bar.classList.add('spaced');
                 }
                 edgeChartContainer.appendChild(bar);
-                
+            });
+
+            edgeKeys.forEach((key) => {
                 const label = document.createElement('div');
-                label.textContent = edgeKeys[index];
+                label.textContent = key;
                 edgeXAxis.appendChild(label);
             });
 
@@ -791,9 +797,11 @@
                     bar.classList.add('spaced');
                 }
                 cornerChartContainer.appendChild(bar);
-                
+            });
+
+            cornerKeys.forEach((key) => {
                 const label = document.createElement('div');
-                label.textContent = cornerKeys[index];
+                label.textContent = key;
                 cornerXAxis.appendChild(label);
             });
         }
