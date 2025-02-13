@@ -87,7 +87,6 @@
             width: 100%;
             height: 100%;
             pointer-events: none;
-            -webkit-appearance: none;
             opacity: 0;
         }
         .range-slider::-webkit-slider-thumb {
@@ -227,6 +226,41 @@
         .checkbox-label input {
             accent-color: #2a2a2a;
         }
+        .bar:hover::after {
+            content: attr(data-value) '%';
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #444;
+            color: white;
+            padding: 0.1rem 0.1rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+        }
+        .bar.spaced {
+            margin: 0 10px;
+        }
+        .error-message {
+            display: none;
+            color: red;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .footer {
+            text-align: center;
+            color: #888;
+            font-size: 0.8rem;
+            margin-top: 2rem;
+        }
+        .footer a {
+            color: #888;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -267,7 +301,7 @@
                     </div>
                 </div>
                 <div class="setting-line">
-                    <span>Cycles</span>
+                    <span>Non-buffer Cycles</span>
                     <div class="range-wrapper">
                         <div class="range-container">
                             <div class="range-selected"></div>
@@ -289,7 +323,7 @@
                     </div>
                 </div>
                 <div class="setting-line">
-                    <span>Algs</span>
+                    <span title="Skill set: full parity, float 3-style, edge 4-flip">Algs</span>
                     <div class="range-wrapper">
                         <div class="range-container">
                             <div class="range-selected"></div>
@@ -315,7 +349,7 @@
                     </div>
                 </div>
                 <div class="setting-line">
-                    <span>Cycles</span>
+                    <span>Non-buffer Cycles</span>
                     <div class="range-wrapper">
                         <div class="range-container">
                             <div class="range-selected"></div>
@@ -337,7 +371,7 @@
                     </div>
                 </div>
                 <div class="setting-line">
-                    <span>Algs</span>
+                    <span title="Skill set: full parity, float 3-style, corner 2/3-twist">Algs</span>
                     <div class="range-wrapper">
                         <div class="range-container">
                             <div class="range-selected"></div>
@@ -354,8 +388,8 @@
         </div>
 
         <div id="distribution" class="tab-content">
-            <input type="text" class="distribution-input" placeholder="Todo: custom JS expression" />
-            <div id="error-message" style="display: none; color: red; text-align: center; margin-bottom: 1rem;"></div>
+            <input type="text" class="distribution-input" placeholder="Custom JS expression. Todo: documentation. Default: x => x.doubleAlgLength / 2" />
+            <div id="error-message" class="error-message"></div>
             <div class="chart-wrapper">
                 <div class="y-axis-label">Prob.</div>
                 <div class="grid-lines edge-grid-lines"></div>
@@ -372,6 +406,13 @@
             </div>
         </div>
     </div>
+
+    <div class="footer">
+        &copy; <span id="year"></span> Xi Lu. Released under the MIT License. View on <a href="https://github.com/helloluxi/bld-stat">Github</a>.
+    </div>
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
 
     <script>
         // Initialize thumbs for a range container
@@ -659,7 +700,7 @@
                     cornerValues.push(cornerStat[key] / 88179840);
                 });
             } else {
-                document.getElementById('error-message').textContent = 'Todo: handle more than 20 keys';
+                document.getElementById('error-message').textContent = 'Working in progress: use histogram for >= 20 keys.';
                 document.getElementById('error-message').style.display = 'block';
             }
 
@@ -730,6 +771,10 @@
                 const bar = document.createElement('div');
                 bar.className = 'bar';
                 bar.style.height = `${(value / maxEdgeValue) * 100}%`;
+                bar.setAttribute('data-value', (value * 100).toFixed(2));
+                if (edgeValues.length <= 5) {
+                    bar.classList.add('spaced');
+                }
                 edgeChartContainer.appendChild(bar);
                 
                 const label = document.createElement('div');
@@ -741,6 +786,10 @@
                 const bar = document.createElement('div');
                 bar.className = 'bar';
                 bar.style.height = `${(value / maxCornerValue) * 100}%`;
+                bar.setAttribute('data-value', (value * 100).toFixed(2));
+                if (cornerValues.length <= 5) {
+                    bar.classList.add('spaced');
+                }
                 cornerChartContainer.appendChild(bar);
                 
                 const label = document.createElement('div');
