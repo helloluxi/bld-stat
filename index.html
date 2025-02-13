@@ -355,6 +355,7 @@
 
         <div id="distribution" class="tab-content">
             <input type="text" class="distribution-input" placeholder="Todo: custom JS expression" />
+            <div id="error-message" style="display: none; color: red; text-align: center; margin-bottom: 1rem;"></div>
             <div class="chart-wrapper">
                 <div class="y-axis-label">Prob.</div>
                 <div class="grid-lines edge-grid-lines"></div>
@@ -612,40 +613,77 @@
         }
 
         function updateChart(input) {
-            const edgeAlgCounts = ee_ls.concat(oe_ls).reduce((acc, item) => {
-                acc[item.doubleAlgLength] = (acc[item.doubleAlgLength] || 0) + item.count;
+            const edgeValues = [], cornerValues = [];
+            let numberFunc = x => x.doubleAlgLength / 2;
+
+            // Parse the input as stat=>int function
+            if (input.trim() !== '') {
+                try {
+                    const parsedFunc = new Function('x', `return ${input};`);
+                    const res = parsedFunc(ee_ls[0]);
+                    if (typeof res === 'number') {
+                        numberFunc = parsedFunc;
+                    }
+                    else {
+                        throw new Error('Invalid function');
+                    }
+                } catch (e) {
+                    document.getElementById('error-message').textContent = 'Invalid JavaScript lambda function.';
+                    document.getElementById('error-message').style.display = 'block';
+                    return;
+                }
+            }
+            document.getElementById('error-message').style.display = 'none';
+
+            // Run function
+            const edgeStat = ee_ls.concat(oe_ls).reduce((acc, item) => {
+                const key = numberFunc(item);
+                acc[key] = (acc[key] || 0) + item.count;
                 return acc;
             }, {});
+            const cornerStat = ec_ls.concat(oc_ls).reduce((acc, item) => {
+                const key = numberFunc(item);
+                acc[key] = (acc[key] || 0) + item.count;
+                return acc;
+            }, {});
+            
+            const edgeKeys = Object.keys(edgeStat).map(Number).sort((a, b) => a - b);
+            const cornerKeys = Object.keys(cornerStat).map(Number).sort((a, b) => a - b);
 
-            const edgeValues = [];
+            if (edgeKeys.length <= 20 && cornerKeys.length <= 20) {
+                edgeKeys.forEach(key => {
+                    edgeValues.push(edgeStat[key] / 980995276800);
+                });
+
+                cornerKeys.forEach(key => {
+                    cornerValues.push(cornerStat[key] / 88179840);
+                });
+            } else {
+                document.getElementById('error-message').textContent = 'Todo: handle more than 20 keys';
+                document.getElementById('error-message').style.display = 'block';
+            }
+
+            // Calculate mean and standard deviation for edge values
             let edgeSumXP = 0, edgeSumX2P = 0;
-            for (let i = 0; i <= 17; i++) {
-                const value = (edgeAlgCounts[i] || 0) / 980995276800;
-                edgeValues.push(value);
-                edgeSumXP += value * i;
-                edgeSumX2P += value * i * i;
-            }
-            const edgeExp = edgeSumXP / 2, edgeStd = Math.sqrt(edgeSumX2P / 4 - edgeExp * edgeExp);
-            
-            const cornerAlgCounts = ec_ls.concat(oc_ls).reduce((acc, item) => {
-                acc[item.doubleAlgLength] = (acc[item.doubleAlgLength] || 0) + item.count;
-                return acc;
-            }, {});
-            const cornerValues = [];
-            let cornerSumXP = 0, cornerSumX2P = 0;
-            for (let i = 0; i <= 11; i++) {
-                const value = (cornerAlgCounts[i] || 0) / 88179840;
-                cornerValues.push(value);
-                cornerSumXP += value * i;
-                cornerSumX2P += value * i * i;
-            }
-            const cornerExp = cornerSumXP / 2, cornerStd = Math.sqrt(cornerSumX2P / 4 - cornerExp * cornerExp);
+            edgeValues.forEach((value, index) => {
+                edgeSumXP += value * edgeKeys[index];
+                edgeSumX2P += value * edgeKeys[index] * edgeKeys[index];
+            });
+            const edgeExp = edgeSumXP, edgeStd = Math.sqrt(edgeSumX2P - edgeExp * edgeExp);
+            document.querySelector('.edge-x-axis-label').textContent = `Edge (Mean=${edgeExp.toFixed(3)}, Std=${edgeStd.toFixed(3)})`;
 
-            document.querySelector('.edge-x-axis-label').textContent = `Edge Algs (Mean=${edgeExp.toFixed(3)}, Std=${edgeStd.toFixed(3)})`;
-            document.querySelector('.corner-x-axis-label').textContent = `Corner Algs (Mean=${cornerExp.toFixed(3)}, Std=${cornerStd.toFixed(3)})`;
-            
-            const maxEdgeValue = Math.max(...edgeValues);
-            const maxCornerValue = Math.max(...cornerValues);
+            // Calculate mean and standard deviation for corner values
+            let cornerSumXP = 0, cornerSumX2P = 0;
+            cornerValues.forEach((value, index) => {
+                cornerSumXP += value * cornerKeys[index];
+                cornerSumX2P += value * cornerKeys[index] * cornerKeys[index];
+            });
+            const cornerExp = cornerSumXP, cornerStd = Math.sqrt(cornerSumX2P - cornerExp * cornerExp);
+            document.querySelector('.corner-x-axis-label').textContent = `Corner (Mean=${cornerExp.toFixed(3)}, Std=${cornerStd.toFixed(3)})`;
+
+            // Create charts
+            let maxEdgeValue = Math.ceil(Math.max(...edgeValues) * 10) / 10;
+            let maxCornerValue = Math.ceil(Math.max(...cornerValues) * 10) / 10;
             const edgeChartContainer = document.getElementById('edge-chart');
             const cornerChartContainer = document.getElementById('corner-chart');
             const edgeGridLines = document.querySelector('.edge-grid-lines');
@@ -661,7 +699,7 @@
             edgeXAxis.innerHTML = '';
             cornerXAxis.innerHTML = '';
             
-            // Create grid lines and labels
+            // Create grid lines and y-axis labels
             const gridCount = 5;
             for (let i = 0; i <= gridCount; i++) {
                 const edgeGridLine = document.createElement('div');
@@ -695,7 +733,7 @@
                 edgeChartContainer.appendChild(bar);
                 
                 const label = document.createElement('div');
-                label.textContent = index / 2;
+                label.textContent = edgeKeys[index];
                 edgeXAxis.appendChild(label);
             });
 
@@ -706,7 +744,7 @@
                 cornerChartContainer.appendChild(bar);
                 
                 const label = document.createElement('div');
-                label.textContent = index / 2;
+                label.textContent = cornerKeys[index];
                 cornerXAxis.appendChild(label);
             });
         }
