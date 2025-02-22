@@ -11,6 +11,11 @@
             margin: 2rem auto;
             padding: 0 1rem;
         }
+        @media (orientation: portrait) {
+            body {
+                max-width: 95%;
+            }
+        }
         h1 {
             text-align: center;
             color: #ffffff;
@@ -392,7 +397,7 @@
 
         <div id="distribution" class="tab-content">
             <input type="text" class="distribution-input" placeholder="Custom JS expression (default: x.algs)" />
-            <p style="text-align: center; color: #888; font-size: 0.8rem;">Variables: x.(group | parity | cycles | (float | bad)(1|2|3|4|5))</p>
+            <p style="text-align: center; color: #888; font-size: 0.8rem;">Variables: group, parity, cycles, algs, float1, bad1, ..., float5, bad5</p>
             <div id="error-message" class="error-message"></div>
             <div class="chart-wrapper">
                 <div class="y-axis-label">Prob.</div>
@@ -672,7 +677,8 @@
             // Parse the input as stat=>int function
             if (input.trim() !== '') {
                 try {
-                    const parsedFunc = new Function('x', `return ${input};`);
+                    const replacedInput = input.replace(/\b(group|parity|cycles|algs|(float|bad)[1-5])\b/g, 'x.$1');
+                    const parsedFunc = new Function('x', `return ${replacedInput};`);
                     const res = parsedFunc(ee_ls[0]);
                     if (typeof res === 'number') {
                         numberFunc = parsedFunc;
