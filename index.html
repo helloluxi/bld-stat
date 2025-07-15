@@ -1,282 +1,17 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
-    <title>3BLD Stat Tools</title>
-    <style>
-        body {
-            background-color: #1a1a1a;
-            color: #ffffff;
-            font-family: system-ui, -apple-system, sans-serif;
-            max-width: 600px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-        @media (orientation: portrait) {
-            body {
-                max-width: 95%;
-            }
-        }
-        h1 {
-            text-align: center;
-            color: #ffffff;
-            margin-bottom: 2rem;
-        }
-        .tab-container {
-            background-color: #2a2a2a;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        .tab-buttons {
-            display: flex;
-            background: #333;
-        }
-        .tab-button {
-            padding: 1rem 2rem;
-            border: none;
-            background: none;
-            color: #888;
-            cursor: pointer;
-            flex: 1;
-            transition: all 0.3s;
-        }
-        .tab-button.active {
-            background: #2a2a2a;
-            color: white;
-        }
-        .tab-content {
-            padding: 1.5rem;
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-        }
-        .setting-group {
-            background-color: #333;
-            padding: 1rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-        }
-        .setting-group h3 {
-            margin-top: 0;
-            color: #aaa;
-        }
-        .setting-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 1rem 0;
-            gap: 1rem;
-        }
-        .setting-value {
-            min-width: 4rem;
-            text-align: right;
-        }
-        select, .range-container {
-            width: 150px;
-        }
-        select {
-            border-radius: 6px;
-            background: #444;
-            color: white;
-            border: none;
-            padding: 0.3rem;
-        }
-        .range-container {
-            position: relative;
-            height: 6px;
-            background: #444;
-            border-radius: 3px;
-        }
-        .range-slider {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            opacity: 0;
-        }
-        .range-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            pointer-events: auto;
-            height: 16px;
-            width: 16px;
-            border-radius: 50%;
-            background: white;
-            cursor: pointer;
-            border: 2px solid #666;
-            box-shadow: 0 0 0 4px #2a2a2a;
-            opacity: 1;
-        }
-        .range-selected {
-            position: absolute;
-            height: 100%;
-            background: #666;
-            border-radius: 3px;
-        }
-        .range-thumb {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: #888;
-            border: 2px solid #666;
-            border-radius: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
-        }
-        .result {
-            text-align: center;
-            font-size: 1.2rem;
-            background: #333;
-            padding: 1rem;
-            border-radius: 8px;
-            margin: 1rem 0;
-        }
-        .distribution-input {
-            width: 100%;
-            padding: 0.5rem;
-            background: #333;
-            border: 1px solid #444;
-            color: white;
-            border-radius: 6px;
-        }
-        .chart-wrapper {
-            position: relative;
-            padding: 1rem 1.5rem;
-            height: 240px;
-        }
-        .chart-container {
-            height: calc(100% - 4rem);
-            display: flex;
-            align-items: flex-end;
-            gap: 2px;
-            position: absolute;
-            top: 2rem;
-            left: 3rem;
-            right: 0;
-            bottom: 2rem;
-            z-index: 2;
-            padding-left: 0rem;
-        }
-        .bar {
-            background: #666;
-            flex: 1;
-            transition: height 0.3s;
-            border-radius: 4px 4px 0 0;
-            position: relative;
-            margin: 0 1px;
-        }
-        .grid-lines {
-            position: absolute;
-            top: 2rem;
-            left: 3rem;
-            right: 0;
-            bottom: 2rem;
-            z-index: 1;
-        }
-        .grid-line {
-            position: absolute;
-            left: 0;
-            right: 0;
-            border-bottom: 1px dashed #444;
-        }
-        .grid-label {
-            position: absolute;
-            left: -3rem;
-            transform: translateY(-50%);
-            color: #888;
-            font-size: 0.8rem;
-        }
-        .x-axis {
-            position: absolute;
-            bottom: 0;
-            left: 3rem;
-            right: 0;
-            height: 2rem;
-            display: flex;
-            justify-content: space-around;
-            color: #888;
-            font-size: 0.8rem;
-        }
-        .x-axis div {
-            flex: 1;
-            text-align: center;
-        }
-        .y-axis-label {
-            position: absolute;
-            left: -1.2rem;
-            top: 50%;
-            transform: rotate(-90deg) translateX(-50%);
-            transform-origin: left top;
-            color: #888;
-            font-size: 0.8rem;
-        }
-        .x-axis-label {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #888;
-            font-size: 0.8rem;
-        }
-        .checkbox-container {
-            display: flex;
-            gap: 1rem;
-            background-color: #333;
-            padding: 0.5rem;
-            border-radius: 8px;
-        }
-        .checkbox-label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #aaa;
-        }
-        .checkbox-label input {
-            accent-color: #2a2a2a;
-        }
-        .bar:hover::after {
-            content: attr(data-value) '%';
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #444;
-            color: white;
-            padding: 0.1rem 0.1rem;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            white-space: nowrap;
-        }
-        .bar.spaced {
-            margin: 0 10px;
-        }
-        .error-message {
-            display: none;
-            color: red;
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        .footer {
-            text-align: center;
-            color: #888;
-            font-size: 0.8rem;
-            margin-top: 2rem;
-        }
-        .footer a {
-            color: #888;
-            text-decoration: none;
-        }
-        .footer a:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" href="./styles.css">
+    <title>BLD Stat Tools</title>
 </head>
+
 <body>
-    <h1>3BLD Stat Tools</h1>
-    
+    <h1>BLD Stat Tools</h1>
+
     <div class="tab-container">
         <div class="tab-buttons">
             <button class="tab-button active" onclick="switchTab('probability')">Probability</button>
@@ -312,14 +47,14 @@
                     </div>
                 </div>
                 <div class="setting-line">
-                    <span>Non-buffer Cycles</span>
+                    <span>Cycle Breaks</span>
                     <div class="range-wrapper">
                         <div class="range-container">
                             <div class="range-selected"></div>
-                            <input type="range" min="0" max="5" value="0" class="range-slider" id="edge-cycles-min">
-                            <input type="range" min="0" max="5" value="5" class="range-slider" id="edge-cycles-max">
+                            <input type="range" min="0" max="5" value="0" class="range-slider" id="edge-breaks-min">
+                            <input type="range" min="0" max="5" value="5" class="range-slider" id="edge-breaks-max">
                         </div>
-                        <span class="setting-value" id="edge-cycles-value">0-5</span>
+                        <span class="setting-value" id="edge-breaks-value">0-5</span>
                     </div>
                 </div>
                 <div class="setting-line">
@@ -334,12 +69,14 @@
                     </div>
                 </div>
                 <div class="setting-line">
-                    <span title="Skill set: full parity, float 3-style, edge 2/4-flip">Algs</span>
+                    <span>Algs</span>
                     <div class="range-wrapper">
                         <div class="range-container">
                             <div class="range-selected"></div>
-                            <input type="range" min="0" max="8.5" value="0"   step="0.5" class="range-slider" id="edge-length-min">
-                            <input type="range" min="0" max="8.5" value="8.5" step="0.5" class="range-slider" id="edge-length-max">
+                            <input type="range" min="0" max="8.5" value="0" step="0.5" class="range-slider"
+                                id="edge-length-min">
+                            <input type="range" min="0" max="8.5" value="8.5" step="0.5" class="range-slider"
+                                id="edge-length-max">
                         </div>
                         <span class="setting-value" id="edge-length-value">0-8.5</span>
                     </div>
@@ -360,14 +97,14 @@
                     </div>
                 </div>
                 <div class="setting-line">
-                    <span>Non-buffer Cycles</span>
+                    <span>Cycle Breaks</span>
                     <div class="range-wrapper">
                         <div class="range-container">
                             <div class="range-selected"></div>
-                            <input type="range" min="0" max="3" value="0" class="range-slider" id="corner-cycles-min">
-                            <input type="range" min="0" max="3" value="3" class="range-slider" id="corner-cycles-max">
+                            <input type="range" min="0" max="3" value="0" class="range-slider" id="corner-breaks-min">
+                            <input type="range" min="0" max="3" value="3" class="range-slider" id="corner-breaks-max">
                         </div>
-                        <span class="setting-value" id="corner-cycles-value">0-3</span>
+                        <span class="setting-value" id="corner-breaks-value">0-3</span>
                     </div>
                 </div>
                 <div class="setting-line">
@@ -382,25 +119,27 @@
                     </div>
                 </div>
                 <div class="setting-line">
-                    <span title="Skill set: full parity, float 3-style, corner 2/3-twist">Algs</span>
+                    <span>Algs</span>
                     <div class="range-wrapper">
                         <div class="range-container">
                             <div class="range-selected"></div>
-                            <input type="range" min="0" max="5.5" value="0"   step="0.5" class="range-slider" id="corner-length-min">
-                            <input type="range" min="0" max="5.5" value="5.5" step="0.5" class="range-slider" id="corner-length-max">
+                            <input type="range" min="0" max="5.5" value="0" step="0.5" class="range-slider"
+                                id="corner-length-min">
+                            <input type="range" min="0" max="5.5" value="5.5" step="0.5" class="range-slider"
+                                id="corner-length-max">
                         </div>
                         <span class="setting-value" id="corner-length-value">0-5.5</span>
                     </div>
                 </div>
             </div>
-            
-            <p style="text-align: center; color: #888; font-size: 0.8rem;">Todo: custom JS filter & scrambler</p>
+
             <div class="result">Probability: <span id="probability-value">100.00%</span></div>
         </div>
 
         <div id="distribution" class="tab-content">
             <input type="text" class="distribution-input" placeholder="Custom JS expression (default: algs)" />
-            <p style="text-align: center; color: #888; font-size: 0.8rem;">Variables: group, parity, cycles, algs, float1, bad1, ..., float5, bad5</p>
+            <p style="text-align: center; color: #888; font-size: 0.8rem;">Variables: parity, breaks, algs, float1,
+                bad1, ..., float5, bad5</p>
             <div id="error-message" class="error-message"></div>
             <div class="chart-wrapper">
                 <div class="y-axis-label">Prob.</div>
@@ -420,19 +159,25 @@
     </div>
 
     <div class="footer">
-        &copy; <span id="year"></span> Xi Lu. Released under the MIT License. View on <a href="https://github.com/helloluxi/bld-stat">Github</a>.
+        &copy;
+        <span id="year">2025</span>
+        Xi Lu. Released under the MIT License.
+        <a href="https://github.com/helloluxi/bld-stat" target="_blank">Github</a>
+        |
+        <a href="help.html" target="_blank">Help</a>
+        <script>
+            document.getElementById('year').textContent = new Date().getFullYear();
+        </script>
     </div>
-    <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
-    </script>
 
+    <script src="./cycler.js"></script>
     <script>
         // Initialize thumbs for a range container
         function initializeRangeContainer(container) {
             // Remove any existing thumbs
             const existingThumbs = container.querySelectorAll('.range-thumb');
             existingThumbs.forEach(thumb => thumb.remove());
-            
+
             // Create new thumbs
             const thumb1 = document.createElement('div');
             const thumb2 = document.createElement('div');
@@ -442,94 +187,12 @@
             container.appendChild(thumb2);
         }
 
-        let ee_ls = [], ec_ls = [], oe_ls = [], oc_ls = [];
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', async function () {
             // Selected code to run at the beginning
             const factorials = [];
             for (let i = 0; i <= 11; i++) {
                 factorials[i] = i === 0 ? 1 : factorials[i - 1] * i;
             }
-
-            const fileNames = ['ee.txt', 'ec.txt', 'oe.txt', 'oc.txt'];
-            const fetchData = fileName => fetch(`assets/${fileName}`)
-                .then(response => response.text())
-                .then(text => {
-                    const lines = text.trim().split('\n');
-                    const data = lines.map(line => {
-                        const numbers = line.split(',').map(Number);
-                        const grouped = [];
-                        for (let i = 0; i < numbers.length; i += 2) {
-                            grouped.push({ perm: numbers[i], ori: numbers[i + 1] });
-                        }
-                        const _Perm = fileName[1] === 'e' ? 12 : 8;
-                        const _Ori = fileName[1] === 'e' ? 2 : 3;
-
-                        let Count = factorials[_Perm - 1];
-                        grouped.slice(1).forEach(cycle => {
-                            Count /= cycle.perm;
-                        });
-                        Count *= Math.pow(_Ori, (_Perm - grouped.length));
-                        grouped.slice(1).reduce((acc, cycle) => {
-                            const count = acc.get(cycle.perm<<2|cycle.ori) || 0;
-                            acc.set(cycle.perm<<2|cycle.ori, count + 1);
-                            return acc;
-                        }, new Map()).forEach((count, cycle) => {
-                            Count /= factorials[count];
-                        });
-
-                        let float3 = grouped.slice(1).filter(cycle => cycle.perm == 3 && cycle.ori == 0).length;
-                        let baseLength = grouped.slice(1).reduce((sum, cycle) => sum + (cycle.perm > 1 ? cycle.perm + 1 : 0), 0) + grouped[0].perm - 1;
-                        let twistAlgs = 0;
-                        let twistOris = grouped.slice(1).filter(cycle => cycle.perm == 1 && cycle.ori > 0).map(cycle => cycle.ori);
-                        if (_Ori == 2){
-                            twistAlgs += Math.ceil(twistOris.length / 4);
-                        }
-                        else{
-                            for (let i = 0; i < twistOris.length - 2; i++) {
-                                if (twistOris[i] == twistOris[i + 1] && twistOris[i] == twistOris[i + 2]) {
-                                    twistOris.splice(i, 3);
-                                    twistAlgs += 1;
-                                    i -= 1;
-                                }
-                            }
-                            for (let i = 0; i < twistOris.length - 1; i++) {
-                                if (twistOris[i] != twistOris[i + 1]) {
-                                    twistOris.splice(i, 2);
-                                    twistAlgs += 1;
-                                    i -= 1;
-                                }
-                            }
-                            if (twistOris.length > 0) {
-                                twistAlgs += 1;
-                            }
-                        }
-
-                        return {
-                            group: grouped,
-                            parity: fileName[0] === 'e' ? 0 : 1,
-                            cycles: grouped.slice(1).filter(cycle => cycle.perm > 1).length,
-                            float1: grouped.slice(1).filter(cycle => cycle.perm == 1 && cycle.ori == 0).length,
-                            bad1: grouped.slice(1).filter(cycle => cycle.perm == 1 && cycle.ori != 0).length,
-                            float2: grouped.slice(1).filter(cycle => cycle.perm == 2 && cycle.ori == 0).length,
-                            bad2: grouped.slice(1).filter(cycle => cycle.perm == 2 && cycle.ori != 0).length,
-                            float3: float3,
-                            bad3: grouped.slice(1).filter(cycle => cycle.perm == 3 && cycle.ori != 0).length,
-                            float4: grouped.slice(1).filter(cycle => cycle.perm == 4 && cycle.ori == 0).length,
-                            bad4: grouped.slice(1).filter(cycle => cycle.perm == 4 && cycle.ori != 0).length,
-                            float5: grouped.slice(1).filter(cycle => cycle.perm == 5 && cycle.ori == 0).length,
-                            bad5: grouped.slice(1).filter(cycle => cycle.perm == 5 && cycle.ori != 0).length,
-                            algs: twistAlgs - float3 + baseLength * 0.5,
-                            count: Count
-                        };
-                    });
-                    if (fileName === 'ee.txt') ee_ls = data;
-                    if (fileName === 'ec.txt') ec_ls = data;
-                    if (fileName === 'oe.txt') oe_ls = data;
-                    if (fileName === 'oc.txt') oc_ls = data;
-                })
-                .catch(error => console.error('Error reading file:', fileName, error));
-
-            await Promise.all(fileNames.map(fetchData));
 
             // Initialize all range containers
             document.querySelectorAll('.range-container').forEach(container => {
@@ -541,20 +204,20 @@
             updateChart(input.value);
 
             // Add event listeners for sliders
-            const sliderGroups = ['edge-flips', 'edge-cycles', 'edge-float3', 'edge-length', 'corner-flips', 'corner-cycles', 'corner-float3', 'corner-length'];
+            const sliderGroups = ['edge-flips', 'edge-breaks', 'edge-float3', 'edge-length', 'corner-flips', 'corner-breaks', 'corner-float3', 'corner-length'];
             sliderGroups.forEach(baseId => {
                 const minSlider = document.getElementById(baseId + '-min');
                 const maxSlider = document.getElementById(baseId + '-max');
 
                 if (minSlider && maxSlider) {
-                    minSlider.addEventListener('input', function() {
+                    minSlider.addEventListener('input', function () {
                         if (parseInt(maxSlider.value) < parseInt(this.value)) {
                             maxSlider.value = this.value;
                         }
                         updateRangeSlider(baseId);
                     });
 
-                    maxSlider.addEventListener('input', function() {
+                    maxSlider.addEventListener('input', function () {
                         if (parseInt(minSlider.value) > parseInt(this.value)) {
                             minSlider.value = this.value;
                         }
@@ -566,7 +229,7 @@
             });
 
             // Add event listener for distribution input
-            input.addEventListener('change', function() {
+            input.addEventListener('change', function () {
                 updateChart(this.value);
             });
         });
@@ -589,8 +252,8 @@
 
             const edgeFlipsMin = Number(document.getElementById('edge-flips-min').value);
             const edgeFlipsMax = Number(document.getElementById('edge-flips-max').value);
-            const edgeCyclesMin = Number(document.getElementById('edge-cycles-min').value);
-            const edgeCyclesMax = Number(document.getElementById('edge-cycles-max').value);
+            const edgeCyclesMin = Number(document.getElementById('edge-breaks-min').value);
+            const edgeCyclesMax = Number(document.getElementById('edge-breaks-max').value);
             const edgeFloat3Min = Number(document.getElementById('edge-float3-min').value);
             const edgeFloat3Max = Number(document.getElementById('edge-float3-max').value);
             const edgeLengthMin = Number(document.getElementById('edge-length-min').value);
@@ -598,8 +261,8 @@
 
             const cornerFlipsMin = Number(document.getElementById('corner-flips-min').value);
             const cornerFlipsMax = Number(document.getElementById('corner-flips-max').value);
-            const cornerCyclesMin = Number(document.getElementById('corner-cycles-min').value);
-            const cornerCyclesMax = Number(document.getElementById('corner-cycles-max').value);
+            const cornerCyclesMin = Number(document.getElementById('corner-breaks-min').value);
+            const cornerCyclesMax = Number(document.getElementById('corner-breaks-max').value);
             const cornerFloat3Min = Number(document.getElementById('corner-float3-min').value);
             const cornerFloat3Max = Number(document.getElementById('corner-float3-max').value);
             const cornerLengthMin = Number(document.getElementById('corner-length-min').value);
@@ -608,62 +271,62 @@
             parityConstraint = (parity) => parityEven && parity == 0 || parityOdd && parity == 1;
             edgeConstraint = (x) =>
                 x.bad1 >= edgeFlipsMin && x.bad1 <= edgeFlipsMax &&
-                x.cycles >= edgeCyclesMin && x.cycles <= edgeCyclesMax &&
+                x.breaks >= edgeCyclesMin && x.breaks <= edgeCyclesMax &&
                 x.float3 >= edgeFloat3Min && x.float3 <= edgeFloat3Max &&
                 x.algs >= edgeLengthMin - 0.1 && x.algs <= edgeLengthMax + 0.1;
             cornerConstraint = (x) =>
                 x.bad1 >= cornerFlipsMin && x.bad1 <= cornerFlipsMax &&
-                x.cycles >= cornerCyclesMin && x.cycles <= cornerCyclesMax &&
+                x.breaks >= cornerCyclesMin && x.breaks <= cornerCyclesMax &&
                 x.float3 >= cornerFloat3Min && x.float3 <= cornerFloat3Max &&
                 x.algs >= cornerLengthMin - 0.1 && x.algs <= cornerLengthMax + 0.1;
 
             let evenEdgeCount = 0, oddEdgeCount = 0, evenCornerCount = 0, oddCornerCount = 0;
             let evenEdgeCDF = [], oddEdgeCDF = [], evenCornerCDF = [], oddCornerCDF = [];
 
-            ee_ls.forEach(x => {
+            cycler.evenEdges.forEach(x => {
                 evenEdgeCDF.push((evenEdgeCount += parityConstraint(0) && edgeConstraint(x) ? x.count : 0));
             });
             let evenEdgeProbability = evenEdgeCDF[evenEdgeCDF.length - 1] / 980995276800;
 
-            oe_ls.forEach(x => {
+            cycler.oddEdges.forEach(x => {
                 oddEdgeCDF.push((oddEdgeCount += parityConstraint(1) && edgeConstraint(x) ? x.count : 0));
             });
             let oddEdgeProbability = oddEdgeCDF[oddEdgeCDF.length - 1] / 980995276800;
 
-            ec_ls.forEach(x => {
+            cycler.evenCorners.forEach(x => {
                 evenCornerCDF.push((evenCornerCount += parityConstraint(0) && cornerConstraint(x) ? x.count : 0));
             });
             let evenCornerProbability = evenCornerCDF[evenCornerCDF.length - 1] / 88179840;
 
-            oc_ls.forEach(x => {
+            cycler.oddCorners.forEach(x => {
                 oddCornerCDF.push((oddCornerCount += parityConstraint(1) && cornerConstraint(x) ? x.count : 0));
             });
             let oddCornerProbability = oddCornerCDF[oddCornerCDF.length - 1] / 88179840;
             let probability = (evenEdgeProbability * evenCornerProbability + oddEdgeProbability * oddCornerProbability) * 2;
 
-            document.getElementById('probability-value').textContent = (100*probability).toFixed(2) + '%';
+            document.getElementById('probability-value').textContent = (100 * probability).toFixed(2) + '%';
         }
 
-        function updateRangeSlider(baseId, isUserInput=true) {
+        function updateRangeSlider(baseId, isUserInput = true) {
             const minSlider = document.getElementById(baseId + '-min');
             const maxSlider = document.getElementById(baseId + '-max');
             const container = minSlider.parentNode;
             const range = container.querySelector('.range-selected');
             const valueDisplay = document.getElementById(baseId + '-value');
             const thumbs = container.querySelectorAll('.range-thumb');
-            
+
             const percent1 = (minSlider.value - minSlider.min) / (minSlider.max - minSlider.min) * 100;
             const percent2 = (maxSlider.value - minSlider.min) / (minSlider.max - minSlider.min) * 100;
-            
+
             range.style.left = percent1 + '%';
             range.style.width = (percent2 - percent1) + '%';
-            
+
             // Ensure we have thumbs before trying to position them
             if (thumbs.length === 2) {
                 thumbs[0].style.left = percent1 + '%';
                 thumbs[1].style.left = percent2 + '%';
             }
-            
+
             valueDisplay.textContent = `${minSlider.value}-${maxSlider.value}`;
             if (isUserInput)
                 calculateProbability();
@@ -680,9 +343,9 @@
             // Parse the input as stat=>int function
             if (input.trim() !== '') {
                 try {
-                    const replacedInput = input.replace(/\b(group|parity|cycles|algs|(float|bad)[1-5])\b/g, 'x.$1');
+                    const replacedInput = input.replace(/\b(parity|breaks|algs|(float|bad)[1-5])\b/g, 'x.$1');
                     const parsedFunc = new Function('x', `return ${replacedInput};`);
-                    const res = parsedFunc(ee_ls[0]);
+                    const res = parsedFunc(cycler.evenEdges[0]);
                     if (typeof res === 'number') {
                         numberFunc = parsedFunc;
                     }
@@ -698,17 +361,17 @@
             document.getElementById('error-message').style.display = 'none';
 
             // Run function
-            const edgeStat = ee_ls.concat(oe_ls).reduce((acc, item) => {
+            const edgeStat = cycler.evenEdges.concat(cycler.oddEdges).reduce((acc, item) => {
                 const key = numberFunc(item);
                 acc[key] = (acc[key] || 0) + item.count;
                 return acc;
             }, {});
-            const cornerStat = ec_ls.concat(oc_ls).reduce((acc, item) => {
+            const cornerStat = cycler.evenCorners.concat(cycler.oddCorners).reduce((acc, item) => {
                 const key = numberFunc(item);
                 acc[key] = (acc[key] || 0) + item.count;
                 return acc;
             }, {});
-            
+
             const edgeKeys = Object.keys(edgeStat).map(Number).sort((a, b) => a - b);
             const cornerKeys = Object.keys(cornerStat).map(Number).sort((a, b) => a - b);
 
@@ -752,7 +415,7 @@
             const cornerGridLines = document.querySelector('.corner-grid-lines');
             const edgeXAxis = document.querySelector('.edge-x-axis');
             const cornerXAxis = document.querySelector('.corner-x-axis');
-            
+
             // Clear previous content
             edgeChartContainer.innerHTML = '';
             cornerChartContainer.innerHTML = '';
@@ -760,33 +423,33 @@
             cornerGridLines.innerHTML = '';
             edgeXAxis.innerHTML = '';
             cornerXAxis.innerHTML = '';
-            
+
             // Create grid lines and y-axis labels
             const gridCount = 5;
             for (let i = 0; i <= gridCount; i++) {
                 const edgeGridLine = document.createElement('div');
                 edgeGridLine.className = 'grid-line';
                 edgeGridLine.style.bottom = (i / gridCount * 100) + '%';
-                
+
                 const edgeLabel = document.createElement('div');
                 edgeLabel.className = 'grid-label';
                 edgeLabel.textContent = ((maxEdgeValue * i / gridCount)).toFixed(2);
-                
+
                 edgeGridLine.appendChild(edgeLabel);
                 edgeGridLines.appendChild(edgeGridLine);
 
                 const cornerGridLine = document.createElement('div');
                 cornerGridLine.className = 'grid-line';
                 cornerGridLine.style.bottom = (i / gridCount * 100) + '%';
-                
+
                 const cornerLabel = document.createElement('div');
                 cornerLabel.className = 'grid-label';
                 cornerLabel.textContent = ((maxCornerValue * i / gridCount)).toFixed(2);
-                
+
                 cornerGridLine.appendChild(cornerLabel);
                 cornerGridLines.appendChild(cornerGridLine);
             }
-            
+
             // Create bars and x-axis labels
             edgeValues.forEach((value, index) => {
                 const bar = document.createElement('div');
@@ -824,4 +487,5 @@
         }
     </script>
 </body>
+
 </html>
